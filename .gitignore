@@ -1,2 +1,22 @@
-# Node modules
+# Dependency directories
 node_modules/
+
+# Environment variables
+.env
+
+# Logs
+logs
+*.log
+
+# Ignore coverage for tests
+coverage/
+
+# Ignore npm debug files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Miscellaneous
+.DS_Store
+.idea/
+.vscode/
