@@ -5,12 +5,10 @@ const {
 } = require("@simplewebauthn/server");
 const User = require("../models/Users");
 
-// Registration request (step 1)
 exports.startRegistration = async (req, res) => {
   const { username } = req.body;
 
   try {
-    // Check if user already exists
     let user = await User.findOne({ username });
     if (user) {
       return res.status(400).json({ message: "User already exists" });
@@ -44,7 +42,6 @@ exports.startRegistration = async (req, res) => {
   }
 };
 
-// Verify registration response (step 2)
 exports.verifyRegistration = async (req, res) => {
   const { body } = req;
   const username = req.session.username;

@@ -4,7 +4,7 @@ const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const session = require("express-session");
-const MongoDBStore = require("connect-mongodb-session")(session); // Import MongoDB session store
+const MongoDBStore = require("connect-mongodb-session")(session);
 
 // Load environment variables
 dotenv.config();
@@ -15,30 +15,28 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: "http://localhost:3000", // Allow your frontend domain
-    credentials: true, // Allow credentials (cookies)
+    origin: process.env.EXPECTED_ORIGIN,
+    credentials: true,
   })
 );
 app.use(bodyParser.json());
 app.use(express.static("public"));
 
-// Set up MongoDB session store
 const store = new MongoDBStore({
   uri: process.env.MONGO_URI,
-  collection: "sessions", // Collection name for storing sessions
+  collection: "sessions",
 });
 
-// Handle session
 app.use(
   session({
     secret: "your-secret-key",
     resave: false,
-    saveUninitialized: false, // Don't save uninitialized sessions
-    store: store, // Use MongoDB store
+    saveUninitialized: false,
+    store: store,
     cookie: {
       secure: process.env.NODE_ENV === "production", // true if using HTTPS
-      maxAge: 60000, // Set expiration time
-      sameSite: "lax", // Adjust according to your needs
+      maxAge: 60000,
+      sameSite: "lax",
     },
   })
 );
@@ -54,5 +52,5 @@ const authRoutes = require("./routes/authRoutes");
 app.use("/auth", authRoutes);
 
 // Start the server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
