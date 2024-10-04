@@ -22,11 +22,13 @@ app.use(
 app.use(bodyParser.json());
 app.use(express.static("public"));
 
+// Create a session store
 const store = new MongoDBStore({
   uri: process.env.MONGO_URI,
   collection: "sessions",
 });
 
+// Middleware for session management
 app.use(
   session({
     secret: "your-secret-key",
@@ -43,14 +45,21 @@ app.use(
 
 // Connect to MongoDB
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true, // Use the new URL parser
+    useUnifiedTopology: true, // Use the new topology engine
+    ssl: true, // Enable SSL
+  })
   .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log(err));
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+    process.exit(1); // Exit if connection fails
+  });
 
 // Import routes
 const authRoutes = require("./routes/authRoutes");
 app.use("/auth", authRoutes);
 
 // Start the server
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000; // Default to 5000 if PORT is not defined
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
