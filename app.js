@@ -31,12 +31,12 @@ const store = new MongoDBStore({
 // Middleware for session management
 app.use(
   session({
-    secret: "your-secret-key",
+    secret: "your-secret-key", // Replace with a strong secret in production
     resave: false,
     saveUninitialized: false,
     store: store,
     cookie: {
-      secure: process.env.NODE_ENV === "production", // true if using HTTPS
+      secure: true, // Always true when using HTTPS
       maxAge: 60000,
       sameSite: "lax",
     },
@@ -59,6 +59,12 @@ mongoose
 // Import routes
 const authRoutes = require("./routes/authRoutes");
 app.use("/auth", authRoutes);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
+});
 
 // Start the server
 const PORT = process.env.PORT || 5000; // Default to 5000 if PORT is not defined
