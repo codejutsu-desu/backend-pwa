@@ -14,34 +14,30 @@ exports.startAuthentication = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const options = await generateAuthenticationOptions(
-      {
-        rpID: process.env.RP_ID || "localhost",
-        rpName: "pwa",
-        userName: username,
-        timeout: 60000,
-        attestationType: "indirect",
-      },
-      {
-        allowCredentials: [],
-        userVerification: "preferred",
-      },
-      {
-        authenticatorSelection: {
-          residentKey: "required",
-          userVerification: "preferred",
-        },
-      }
-    );
+    console.log("User object:", user);
 
+    // Generate authentication options with retrieved passkeys
+    const options = await generateAuthenticationOptions({
+      rpID: "localhost",
+      rpName: "pwa",
+      timeout: 6000,
+      allowCredentials: [],
+    });
+
+    console.log("Generated options:", options); // Debugging line to check options
+
+    // Store challenge in session
     req.session.username = username;
     req.session.challenge = options.challenge;
 
     res.status(200).json(options);
   } catch (error) {
+    console.error("Error in startAuthentication:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+// verifyAuthentication remains unchanged
 
 exports.verifyAuthentication = async (req, res) => {
   try {
@@ -60,6 +56,8 @@ exports.verifyAuthentication = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    console.log(body);
+
     const credentialPublicKey = base64url.toBuffer(user.publicKey);
 
     const verification = await verifyAuthenticationResponse({
@@ -73,6 +71,8 @@ exports.verifyAuthentication = async (req, res) => {
         counter: user.counter,
       },
     });
+
+    console.log(verification);
 
     if (!verification.verified) {
       return res.status(400).json({ message: "Verification failed" });

@@ -15,7 +15,7 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: process.env.EXPECTED_ORIGIN,
+    origin: "http://localhost:3000",
     credentials: true,
   })
 );
@@ -24,31 +24,28 @@ app.use(express.static("public"));
 
 // Create a session store
 const store = new MongoDBStore({
-  uri: process.env.MONGO_URI,
+  uri: "mongodb+srv://mrimmoys:mad9jaIGjV9DQVqx@users.htrt7.mongodb.net/",
   collection: "sessions",
 });
 
 // Middleware for session management
 app.use(
   session({
-    secret: "your-secret-key", // Replace with a strong secret in production
+    secret: "your-secret-key", // Use a secure, random string for production
     resave: false,
-    saveUninitialized: false,
-    store: store,
+    saveUninitialized: true,
     cookie: {
-      secure: true, // Always true when using HTTPS
-      maxAge: 60000,
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production" ? true : false, // Disable secure for localhost
+      httpOnly: true,
     },
   })
 );
 
 // Connect to MongoDB
+// Connect to MongoDB
 mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true, // Use the new URL parser
-    useUnifiedTopology: true, // Use the new topology engine
-    ssl: true, // Enable SSL
+  .connect("mongodb+srv://mrimmoys:mad9jaIGjV9DQVqx@users.htrt7.mongodb.net/", {
+    // ssl: true, // Enable SSL if needed
   })
   .then(() => console.log("MongoDB connected"))
   .catch((err) => {
@@ -57,6 +54,9 @@ mongoose
   });
 
 // Import routes
+app.get("/", (req, res) => {
+  res.send("Server started"); // Send the message directly as a response
+});
 const authRoutes = require("./routes/authRoutes");
 app.use("/auth", authRoutes);
 
