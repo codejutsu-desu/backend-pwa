@@ -79,7 +79,9 @@ exports.verifyRegistration = async (req, res) => {
     });
 
     await newUser.save();
-    res.status(201).json({ message: "Registration successful" });
+    res
+      .status(201)
+      .json({ status: "success", message: "Registration successful" });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
